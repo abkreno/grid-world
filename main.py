@@ -21,7 +21,7 @@ model.add(Activation('linear')) #linear output so we can have range of real-valu
 rms = RMSprop()
 model.compile(loss='mse', optimizer=rms)
 
-epochs = 10
+epochs = 1000
 gamma = 0.9 #since it may take several moves to goal, making gamma high
 epsilon = 1
 for i in range(epochs):
@@ -41,6 +41,7 @@ for i in range(epochs):
         new_state = makeMove(state, action)
         #Observe reward
         reward = getReward(new_state)
+        print("reward is >>>>>>>>>>>>>",reward)
         #Get max_Q(S',a)
         newQ = model.predict(new_state.reshape(1,80), batch_size=1)
         maxQ = np.max(newQ)
@@ -59,3 +60,27 @@ for i in range(epochs):
         clear_output(wait=True)
     if epsilon > 0.1:
         epsilon -= (1/epochs)
+
+def testAlgo(init=0):
+    i = 0
+    if init==0:
+        state = initGrid()
+
+    print("Initial State:")
+    print(dispGrid(state))
+    status = 1
+    #while game still in progress
+    while(status == 1):
+        qval = model.predict(state.reshape(1,80), batch_size=1)
+        action = (np.argmax(qval)) #take action with highest Q-value
+        print('Move #: %s; Taking action: %s' % (i, action))
+        state = makeMove(state, action)
+        print(dispGrid(state))
+        reward = getReward(state)
+        if reward != -1:
+            status = 0
+            print("Reward: %s" % (reward,))
+        i += 1 #If we're taking more than 10 actions, just stop, we probably can't win this game
+        if (i > 10):
+            print("Game lost; too many moves.")
+            break

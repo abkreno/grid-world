@@ -7,8 +7,12 @@ def randPair(s,e):
 def findLoc(state, obj):
     for i in range(0,4):
         for j in range(0,4):
-            if (state[i,j] == obj).all():
-                return i,j
+            for k in range(0,5):
+                if(state[i,j,k]==obj[k] and obj[k] == 1):
+                    return i,j
+            # if (state[i,j] == obj).all():
+            #     return i,j
+
 
 #Initialize stationary grid, all items are placed deterministically
 def initGrid():
