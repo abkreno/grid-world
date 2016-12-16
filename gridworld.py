@@ -26,15 +26,15 @@ def initGrid():
 
     return state
 
-def makeMove(state, action, index=4):
+def makeMove(state, action, player_index=4):
     #need to locate player in grid
     #need to determine what object (if any) is in the new grid spot the player is moving to
-    player_loc = findLoc(state, np.array([0,0,0,0,1]))
-    print(player_loc)
-    otherp_loc = findLoc(state, np.array([0,0,0,1,0]))
-    other_index = 3
-    if(index==3):
-        player_loc, otherp_loc, other_index = otherp_loc, player_loc, 4
+    player_loc   = findLoc(state, np.array([0,0,0,0,1]))
+    otherp_loc   = findLoc(state, np.array([0,0,0,1,0]))
+    otherp_index = 3
+
+    if(player_index==3):
+        player_loc, otherp_loc, otherp_index = otherp_loc, player_loc, 4
     wall = findLoc(state, np.array([0,0,1,0,0]))
     goal = findLoc(state, np.array([1,0,0,0,0]))
     pit = findLoc(state, np.array([0,1,0,0,0]))
@@ -45,27 +45,27 @@ def makeMove(state, action, index=4):
         new_loc = (player_loc[0] - 1, player_loc[1])
         if (new_loc != wall):
             if ((np.array(new_loc) <= (3,3)).all() and (np.array(new_loc) >= (0,0)).all()):
-                state[new_loc][index] = 1
+                state[new_loc][player_index] = 1
     #down (row + 1)
     elif action==1:
         new_loc = (player_loc[0] + 1, player_loc[1])
         if (new_loc != wall):
             if ((np.array(new_loc) <= (3,3)).all() and (np.array(new_loc) >= (0,0)).all()):
-                state[new_loc][index] = 1
+                state[new_loc][player_index] = 1
     #left (column - 1)
     elif action==2:
         new_loc = (player_loc[0], player_loc[1] - 1)
         if (new_loc != wall):
             if ((np.array(new_loc) <= (3,3)).all() and (np.array(new_loc) >= (0,0)).all()):
-                state[new_loc][index] = 1
+                state[new_loc][player_index] = 1
     #right (column + 1)
     elif action==3:
         new_loc = (player_loc[0], player_loc[1] + 1)
         if (new_loc != wall):
             if ((np.array(new_loc) <= (3,3)).all() and (np.array(new_loc) >= (0,0)).all()):
-                state[new_loc][index] = 1
+                state[new_loc][player_index] = 1
     arr = np.array([0,0,0,0,0])
-    arr[index] = 1
+    arr[player_index] = 1
     new_player_loc = findLoc(state, arr)
     if (not new_player_loc):
         state[player_loc] = arr
@@ -76,7 +76,8 @@ def makeMove(state, action, index=4):
     #re-place goal
     state[goal][0] = 1
     #re-place other player
-    state[otherp_loc][other_index] = 1
+    state[otherp_loc][otherp_index] = 1
+
     return state
 
 def getLoc(state, level):
