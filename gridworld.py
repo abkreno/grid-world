@@ -3,6 +3,12 @@ import numpy as np
 def randPair(s,e):
     return np.random.randint(s,e), np.random.randint(s,e)
 
+def getLoc(state, level):
+    for i in range(0,4):
+        for j in range(0,4):
+            if (state[i,j][level] == 1):
+                return i,j
+
 #finds an array in the "depth" dimension of the grid
 def findLoc(state, obj):
     for i in range(0,4):
@@ -33,17 +39,16 @@ def initGrid():
 def makeMove(state, action, player_index=4):
     #need to locate player in grid
     #need to determine what object (if any) is in the new grid spot the player is moving to
-    player_loc   = findLoc(state, np.array([0,0,0,0,1]))
-    otherp_loc   = findLoc(state, np.array([0,0,0,1,0]))
-    if(not player_loc):
-        otherp_loc = player_loc = findLoc(state, np.array([0,0,0,1,1]))
-    otherp_index = 3
+    player_loc   = getLoc(state, 4)
+    otherp_loc   = getLoc(state, 3)
 
+    otherp_index = 3
     if(player_index==3):
         player_loc, otherp_loc, otherp_index = otherp_loc, player_loc, 4
-    wall = findLoc(state, np.array([0,0,1,0,0]))
-    goal = findLoc(state, np.array([1,0,0,0,0]))
-    pit = findLoc(state, np.array([0,1,0,0,0]))
+
+    wall = getLoc(state, 2)
+    goal = getLoc(state, 0)
+    pit = getLoc(state, 1)
     state = np.zeros((4,4,5))
 
     #up (row - 1)
@@ -70,11 +75,11 @@ def makeMove(state, action, player_index=4):
         if (new_loc != wall):
             if ((np.array(new_loc) <= (3,3)).all() and (np.array(new_loc) >= (0,0)).all()):
                 state[new_loc][player_index] = 1
-    arr = np.array([0,0,0,0,0])
-    arr[player_index] = 1
-    new_player_loc = findLoc(state, arr)
+
+    new_player_loc = getLoc(state, player_index)
     if (not new_player_loc):
-        state[player_loc] = arr
+        state[player_loc][player_index] = 1
+
     #re-place pit
     state[pit][1] = 1
     #re-place wall
@@ -85,12 +90,6 @@ def makeMove(state, action, player_index=4):
     state[otherp_loc][otherp_index] = 1
 
     return state
-
-def getLoc(state, level):
-    for i in range(0,4):
-        for j in range(0,4):
-            if (state[i,j][level] == 1):
-                return i,j
 
 def getReward(state, index=4):
     player_loc = getLoc(state, index)
