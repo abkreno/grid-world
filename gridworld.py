@@ -7,11 +7,11 @@ def randPair(s,e):
 def findLoc(state, obj):
     for i in range(0,4):
         for j in range(0,4):
-            for k in range(0,5):
-                if(state[i,j,k]==obj[k] and obj[k] == 1):
-                    return i,j
-            # if (state[i,j] == obj).all():
-            #     return i,j
+            # for k in range(0,5):
+            #     if(state[i,j,k]==obj[k] and obj[k] == 1):
+            #         return i,j
+            if (state[i,j] == obj).all():
+                return i,j
 
 
 #Initialize stationary grid, all items are placed deterministically
@@ -35,6 +35,8 @@ def makeMove(state, action, player_index=4):
     #need to determine what object (if any) is in the new grid spot the player is moving to
     player_loc   = findLoc(state, np.array([0,0,0,0,1]))
     otherp_loc   = findLoc(state, np.array([0,0,0,1,0]))
+    if(not player_loc):
+        otherp_loc = player_loc = findLoc(state, np.array([0,0,0,1,1]))
     otherp_index = 3
 
     if(player_index==3):
@@ -90,38 +92,54 @@ def getLoc(state, level):
             if (state[i,j][level] == 1):
                 return i,j
 
-def getReward(state):
-    player1_loc = getLoc(state, 4)
-    player2_loc = getLoc(state, 3)
+def getReward(state, index=4):
+    player_loc = getLoc(state, index)
     pit = getLoc(state, 1)
     goal = getLoc(state, 0)
-    if (player1_loc == pit or player2_loc == goal):
+    if (player_loc == pit):
         return -10
-    elif (player1_loc == goal):
+    elif (player_loc == goal):
         return 10
     else:
         return -1
 
 def dispGrid(state):
-    grid = np.zeros((4,4), dtype='<U2')
+    grid = np.zeros((4,4), dtype='a6')
     player1_loc = findLoc(state, np.array([0,0,0,0,1]))
     player2_loc = findLoc(state, np.array([0,0,0,1,0]))
+    both = findLoc(state, np.array([0,0,0,1,1]))
     wall = findLoc(state, np.array([0,0,1,0,0]))
     goal = findLoc(state, np.array([1,0,0,0,0]))
+    p1_goal = findLoc(state, np.array([1,0,0,0,1]))
+    p2_goal = findLoc(state, np.array([1,0,0,1,0]))
     pit = findLoc(state, np.array([0,1,0,0,0]))
+    p1_pit = findLoc(state, np.array([0,1,0,0,1]))
+    p2_pit = findLoc(state, np.array([0,1,0,1,0]))
     for i in range(0,4):
         for j in range(0,4):
-            grid[i,j] = ' '
+            grid[i,j] = '      '
 
     if player1_loc:
-        grid[player1_loc] = 'C' #player1
+        grid[player1_loc] = '  P1  ' #player1
     if player2_loc:
-        grid[player2_loc] = 'P' #player2
+        grid[player2_loc] = '  P2  ' #player2
+    if both:
+        grid[both] = 'P1  P2'
     if wall:
-        grid[wall] = 'W' #wall
+        grid[wall] = ' WALL ' #wall
     if goal:
-        grid[goal] = '+' #goal
+        grid[goal] = ' GOAL ' #goal
+    if p1_goal:
+        grid[p1_goal] = 'P1GOAL'
+    if p2_goal:
+        grid[p2_goal] = 'P2GOAL'
     if pit:
-        grid[pit] = '-' #pit
+        grid[pit] = ' PIT- ' #pit
+    if p1_pit:
+        grid[p1_pit] = 'P1PIT- ' #pit
+    if p2_pit:
+        grid[p2_pit] = 'P2PIT-' #pit
 
+    for i in range(0,4):
+        print(grid[i])
     return grid
